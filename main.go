@@ -65,9 +65,9 @@ func returnShortenURL(w http.ResponseWriter, r *http.Request) {
 	encoded := makeShort(originalURL)
 	encoded = encoded[:5]
 	fullURL := "http://" + encoded + "." + DOMAIN
-	cached := db.QueryDb("select * from " + TBLNAME + " where original_url = " + originalURL)
+	//cached := db.QueryDb("select * from " + TBLNAME + " where original_url = " + originalURL)
+	//logrus.Info(cached)
 	db.Save("insert into " + TBLNAME + "(original_url, shorten_url) values(1, '"+originalURL+"'), (2, '"+fullURL+"')")
-	logrus.Info(cached)
 	w.Write([]byte(fullURL))
 }
 
