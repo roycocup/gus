@@ -3,7 +3,7 @@ package lib
 import (
 	"database/sql"
 	"os"
-	"github.com/sirupsen/logrus"
+	"github.com/siddontang/go/log"
 )
 
 
@@ -16,7 +16,7 @@ type DB struct {
 func (client *DB) Connect(){
 	db, err := sql.Open("sqlite3", client.DBName)
 	if err != nil {
-		logrus.Fatal(err)
+		log.Fatal(err)
 	}
 
 	client.Conn = db
@@ -28,16 +28,16 @@ func (client *DB) CreateDb() {
 
 	db, err := sql.Open("sqlite3", client.DBName)
 	if err != nil {
-		logrus.Fatal(err)
+		log.Fatal(err)
 	}
 	defer db.Close()
 
 	sqlStmt := "create table " + client.TableName + "(id integer not null primary key, original_url mediumtext, shorten_url tinytext); delete from " + client.TableName + "; "
 
-	logrus.Info("Creating table")
+	log.Info("Creating table...")
 	_, err = db.Exec(sqlStmt)
 	if err != nil {
-		logrus.Fatal("%q: %s\n", err, sqlStmt)
+		log.Fatal("%q: %s\n", err, sqlStmt)
 	}
 
 }
@@ -45,7 +45,7 @@ func (client *DB) CreateDb() {
 func (client *DB) Save(sql string){
 	_, err := client.Conn.Exec(sql)
 	if err != nil {
-		logrus.Fatal(err)
+		log.Fatal(err)
 	}
 }
 
@@ -53,13 +53,13 @@ func (client *DB) QueryDb(sql string) string {
 
 	stmt, err := client.Conn.Prepare(sql)
 	if err != nil {
-		logrus.Fatal(err)
+		log.Fatal(err)
 	}
 	defer stmt.Close()
 	var url string
 	err = stmt.QueryRow().Scan(&url)
-	if err != nil {
-		logrus.Fatal(err)
+	if err != nil{
+		return "-1"
 	}
 	return url
 }
@@ -68,11 +68,11 @@ func (client *DB) QueryDb(sql string) string {
 /**
 tx, err := db.Begin()
 	if err != nil {
-		logrus.Fatal(err)
+		log.Fatal(err)
 	}
 	stmt, err := tx.Prepare("insert into foo(id, name) values(?, ?)")
 	if err != nil {
-		logrus.Fatal(err)
+		log.Fatal(err)
 	}
 	defer stmt.Close()
 	for i := 0; i < 100; i++ {

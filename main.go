@@ -6,7 +6,6 @@ import (
 
 	"github.com/siddontang/go/log"
 	"./lib"
-	"github.com/sirupsen/logrus"
 	"crypto/sha256"
 	"encoding/base64"
 	_ "github.com/mattn/go-sqlite3"
@@ -61,18 +60,23 @@ func showHomePage(w http.ResponseWriter, r *http.Request) {
 }
 
 func returnShortenURL(w http.ResponseWriter, r *http.Request) {
+	log.Info("Processing...")
 	originalURL := r.URL.Query().Get("s")
 	encoded := makeShort(originalURL)
 	encoded = encoded[:5]
 	fullURL := "http://" + encoded + "." + DOMAIN
-	//cached := db.QueryDb("select * from " + TBLNAME + " where original_url = " + originalURL)
-	//logrus.Info(cached)
-	db.Save("insert into " + TBLNAME + "(original_url, shorten_url) values(1, '"+originalURL+"'), (2, '"+fullURL+"')")
+
+	sql :=  "select shorten_url from " + TBLNAME + " where original_url = '" + originalURL + "'"
+	cached := db.QueryDb(sql)
+	if cached == "-1"{
+		sql = "insert into " + TBLNAME + "(original_url, shorten_url) values(1, '"+originalURL+"'), (2, '"+fullURL+"')"
+		db.Save(sql)
+	}
+
 	w.Write([]byte(fullURL))
 }
 
 func makeShort(originalURL string) string {
-	logrus.Info(originalURL)
 	hasher := sha256.New()
 	hasher.Reset()
 	hasher.Write([]byte(originalURL))
